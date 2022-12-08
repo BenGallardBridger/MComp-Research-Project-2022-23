@@ -37,7 +37,7 @@ class hands:
     def handstoCSV(self, image, classification=None):
         headers = ["LH0","LH1","LH2","LH3","LH4","LH5","LH6","LH7","LH8","LH9","LH10","LH11","LH12","LH13","LH14","LH15","LH16","LH17","LH18","LH19","LH20","RH0","RH1","RH2","RH3","RH4","RH5","RH6","RH7","RH8","RH9","RH10","RH11","RH12","RH13","RH14","RH15","RH16","RH17","RH18","RH19","RH20"]
         if (classification is not None):
-            headers.append(classification)
+            headers.append('classification')
         if (not exists("handPos.csv")): # add the headers for the file if it doesnt exist
             with open("handPos.csv", "a", newline='') as csvFile:
                 csvWriter = csv.writer(csvFile, delimiter=',')
@@ -55,10 +55,21 @@ class hands:
                     if (classification is not None): # if a classification is provided, add it to the end
                         row.append(classification)
                     handCounter = 0 # counter to check which number hand is currently being processed
+                    rightHandInd = -1
+                    for i in range(0, len(handsResult.multi_hand_landmarks)):
+                        value = handsResult.multi_handedness[i].classification[0].label
+                        if (value == "Right"):
+                            rightHandInd = i
+                    if (rightHandInd == -1):
+                        rightHandInd = 0
+                    origin = handsResult.multi_hand_landmarks[rightHandInd].landmark[0]
+                    print(origin)
+                    h, w, c = image.shape
+                    origin = (int(origin.x*w) , int(origin.y*h))
                     for handLms in handsResult.multi_hand_landmarks: # working with each hand
                         for id, lm in enumerate(handLms.landmark):
                             h, w, c = image.shape
-                            cx, cy = int(lm.x * w), int(lm.y * h) # get the position of the hands #TODO:: get relative postion to each other
+                            cx, cy = int(lm.x * w), int(lm.y * h) # get the position of the hands
                             handName = handsResult.multi_handedness[handCounter].classification[0].label # get the name of which hand is currently being processed
                             if (len(handsResult.multi_hand_landmarks)==1): #assume that if only one hand is on the screen it is the right hand
                                 offset=1
@@ -67,6 +78,8 @@ class hands:
                                     offset = 0
                                 else:
                                     offset = 1
+                            cx = origin[0]-cx
+                            cy = origin[1]-cy
                             row[id+(21*offset)] = (str(cx) + '|' + str(cy))
                         handCounter+=1
                     csvWriter.writerow(row)
