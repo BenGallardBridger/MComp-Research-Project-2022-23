@@ -21,7 +21,7 @@ class hands:
                     h, w, _ = image.shape
                     cx, cy = int(lm.x * w), int(lm.y * h)
                     #place the hand skeleton on the image
-                    cv2.putText(background, str(id),(cx, cy),cv2.FONT_HERSHEY_PLAIN, 2, (255, 0, 255),2, cv2.LINE_AA)
+                    #cv2.putText(background, str(id),(cx, cy),cv2.FONT_HERSHEY_PLAIN, 2, (255, 0, 255),2, cv2.LINE_AA) - to put the numbers of the joints onto the image -- not used 
                     if id == 0 :
                         cv2.circle(background, (cx, cy), 25, (255, 0, 255), cv2.FILLED)
                 self.mpDraw.draw_landmarks(background, handLms, self.mpHands.HAND_CONNECTIONS)
@@ -35,7 +35,7 @@ class hands:
         return img
 
     def handstoCSV(self, image, classification=None):
-        headers = ["LH0","LH1","LH2","LH3","LH4","LH5","LH6","LH7","LH8","LH9","LH10","LH11","LH12","LH13","LH14","LH15","LH16","LH17","LH18","LH19","LH20","RH0","RH1","RH2","RH3","RH4","RH5","RH6","RH7","RH8","RH9","RH10","RH11","RH12","RH13","RH14","RH15","RH16","RH17","RH18","RH19","RH20"]
+        headers = ["LH0x","LH0y","LH1x","LH1y","LH2x","LH2y","LH3x","LH3y","LH4x","LH4y","LH5x","LH5y","LH6x","LH6y","LH7x","LH7y","LH8x","LH8y","LH9x","LH9y","LH10x","LH10y","LH11x","LH11y","LH12x","LH12y","LH13x","LH13y","LH14x","LH14y","LH15x","LH15y","LH16x","LH16y","LH17x","LH17y","LH18x","LH18y","LH19x","LH19y", "LH20x", "LH20y","RH0x","RH0y","RH1x","RH1y","RH2x","RH2y","RH3x","RH3y","RH4x","RH4y","RH5x","RH5y","RH6x","RH6y","RH7x","RH7y","RH8x","RH8y","RH9x","RH9y","RH10x","RH10y","RH11x","RH11y","RH12x","RH12y","RH13x","RH13y","RH14x","RH14y","RH15x","RH15y","RH16x","RH16y","RH17x","RH17y","RH18x","RH18y","RH19x","RH19y", "RH20x", "RH20y"]
         if (classification is not None):
             headers.append('classification')
         if (not exists("handPos.csv")): # add the headers for the file if it doesnt exist
@@ -44,14 +44,11 @@ class hands:
                 csvWriter.writerow(headers)
         outputImg, handsResult = self.retrieveHandsOverlay(image, None, True)
 
-        #imageRGB = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        #results = self.hands.process(imageRGB)
-
         with open("handPos.csv", "a",newline='') as csvFile: # open the CSV
             csvWriter = csv.writer(csvFile, delimiter=',')
             if handsResult.multi_hand_landmarks:
                 if (len(handsResult.multi_hand_landmarks) <= 2 and len(handsResult.multi_hand_landmarks) >= 0): # check there are either 1 or 2 hands
-                    row = [0] * 42
+                    row = [0] * 84
                     if (classification is not None): # if a classification is provided, add it to the end
                         row.append(classification)
                     handCounter = 0 # counter to check which number hand is currently being processed
@@ -63,7 +60,6 @@ class hands:
                     if (rightHandInd == -1):
                         rightHandInd = 0
                     origin = handsResult.multi_hand_landmarks[rightHandInd].landmark[0]
-                    print(origin)
                     h, w, c = image.shape
                     origin = (int(origin.x*w) , int(origin.y*h))
                     for handLms in handsResult.multi_hand_landmarks: # working with each hand
@@ -80,7 +76,8 @@ class hands:
                                     offset = 1
                             cx = origin[0]-cx
                             cy = origin[1]-cy
-                            row[id+(21*offset)] = (str(cx) + '|' + str(cy))
+                            row[(id*2)+(42*offset)] = str(cx)
+                            row[(id*2) +(42*offset)+1] = str(cy)
                         handCounter+=1
                     csvWriter.writerow(row)
         return outputImg #remove when in use just for testing
