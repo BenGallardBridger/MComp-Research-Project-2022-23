@@ -1,0 +1,10 @@
+
+*.jpg
+Checkpoints/checkpoint
+*.data-00000-of-00001
+*.index
+*.zip
+*.csv
+*.csv
+*.jpg
+*.mp4

@@ -2,13 +2,13 @@ import tensorflow as tf
 from tensorflow import keras
 from keras import datasets, layers, models
 import matplotlib.pyplot as plt
-
+import os
 
 batch_size = 32
-img_height = 1080
-img_width = 1080
+img_height = 480
+img_width = 480
 
-fileLoc = r"C:\Users\benGa\Documents\University\Masters\MComp Research Project\Programming\Dataset\HandSkeletons"
+fileLoc = r"C:\Users\benGa\Documents\University\Masters\MComp Research Project\Programming Repo\MComp-Research-Project-2022-23\Data\Handskeletons"
 
 train_ds = tf.keras.utils.image_dataset_from_directory(
   fileLoc,
@@ -44,7 +44,15 @@ model.add(layers.MaxPooling2D((2, 2)))
 model.add(layers.Conv2D(64, (3, 3), activation='relu'))
 model.add(layers.Flatten())
 model.add(layers.Dense(64, activation='relu'))
-model.add(layers.Dense(26))
+model.add(layers.Dense(6))
+
+checkpoint_path = r"C:\Users\benGa\Documents\University\Masters\MComp Research Project\Programming Repo\MComp-Research-Project-2022-23\Checkpoints\cp6.ckpt"
+checkpoint_dir = os.path.dirname(checkpoint_path)
+
+# Create a callback that saves the model's weights
+cp_callback = tf.keras.callbacks.ModelCheckpoint(filepath=checkpoint_path,
+                                                 save_weights_only=True,
+                                                 verbose=1)
 
 model.compile(optimizer='adam',
               loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
@@ -54,5 +62,6 @@ epochs=10
 history = model.fit(
   train_ds,
   validation_data=val_ds,
-  epochs=epochs
+  epochs=epochs,
+  callbacks=[cp_callback]
 )

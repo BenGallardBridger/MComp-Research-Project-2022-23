@@ -6,6 +6,6 @@ hand = handPretext.hands() # create an object to process the hand tracking prete
 while True:
     success, image = cap.read()
     image = cv2.flip(image, flipCode=1)
-    outputImg = hand.handstoCSV(image, 'A')
+    outputImg = hand.handsBackground(image)
     cv2.imshow("Output",outputImg)
     cv2.waitKey(1)

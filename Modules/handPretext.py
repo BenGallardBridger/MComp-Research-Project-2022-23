@@ -5,7 +5,8 @@ from os.path import exists
 import csv
 
 class hands:
-    def __init__(self): # create the instances required for hands processing in an object to increase efficiency
+
+    def __init__(self):
         self.mpHands = mp.solutions.hands
         self.hands = self.mpHands.Hands()
         self.mpDraw = mp.solutions.drawing_utils
@@ -20,8 +21,6 @@ class hands:
                 for id, lm in enumerate(handLms.landmark):
                     h, w, _ = image.shape
                     cx, cy = int(lm.x * w), int(lm.y * h)
-                    #place the hand skeleton on the image
-                    #cv2.putText(background, str(id),(cx, cy),cv2.FONT_HERSHEY_PLAIN, 2, (255, 0, 255),2, cv2.LINE_AA) - to put the numbers of the joints onto the image -- not used 
                     if id == 0 :
                         cv2.circle(background, (cx, cy), 25, (255, 0, 255), cv2.FILLED)
                 self.mpDraw.draw_landmarks(background, handLms, self.mpHands.HAND_CONNECTIONS)
